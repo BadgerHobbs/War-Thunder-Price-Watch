@@ -17,7 +17,7 @@ docker run -d \
 
 ## Todo
 
-- [ ] Ability to run as a docker container service
+- [x] Ability to run as a docker container service
 - [ ] Additional front-end website or API
 - [ ] Archive of additional media for store items
 - [ ] Archive of original webpages for store items
