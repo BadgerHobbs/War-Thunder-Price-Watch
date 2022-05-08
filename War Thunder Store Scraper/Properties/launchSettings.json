@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "War Thunder Store Scraper": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
