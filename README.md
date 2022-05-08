@@ -8,7 +8,7 @@ This application is a simple scraper for the War Thunder Store, generating (and 
 docker build -t war-thunder-store-scraper:latest -f "War Thunder Store Scraper/Dockerfile" .
 
 docker run -d \
-    --name war-thunder-store-sraper \
+    --name war-thunder-store-scraper \
     -v /path/to/data:/data \
     -e DATABASE_DIRECTORY="/data/" \
     -e REFRESH_INTERVAL="1440 " \
