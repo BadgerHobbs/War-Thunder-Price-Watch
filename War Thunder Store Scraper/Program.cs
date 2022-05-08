@@ -21,11 +21,6 @@ foreach (string link in storeItemLinks)
 // Create Database object
 Database database = new Database("warthunder_store.db");
 
-// Create table
-database.CreateStoreItemsTable();
-
 // Insert store items into database
-database.InsertStoreItems(storeItems);
+database.UpdateDatabaseWithStoreItems(storeItems);
 
-// Press any key to exit
-Console.ReadKey();

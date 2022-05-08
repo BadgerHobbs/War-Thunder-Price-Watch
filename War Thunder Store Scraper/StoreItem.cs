@@ -12,24 +12,20 @@ namespace War_Thunder_Store_Scraper
         public string? Id { get; set; }
         public string? Price { get; set; }
         public string? Url { get; set; }
-        public string? Image { get; set; }
         public string? Description { get; set; }
-        public string? Category { get; set; }
         public float? AverageRating { get; set; }
         public int? NumberOfVotes { get; set; }
         public DateTime? TimeStamp { get; set; }
 
 
         // Constructor
-        public StoreItem(string? name = null, string? id = null, string? price = null, string? url = null, string? image = null, string? description = null, string? category = null, float? averageRating = null, int? numberOfVotes = null, DateTime? timeStamp = null)
+        public StoreItem(string? name = null, string? id = null, string? price = null, string? url = null, string? description = null, float? averageRating = null, int? numberOfVotes = null, DateTime? timeStamp = null)
         {
             Name = name;
             Id = url != null ? GetIdFromLink(url) : id;
             Price = price;
             Url = url;
-            Image = image;
             Description = description;
-            Category = category;
             AverageRating = averageRating;
             NumberOfVotes = numberOfVotes;
             TimeStamp = timeStamp;
