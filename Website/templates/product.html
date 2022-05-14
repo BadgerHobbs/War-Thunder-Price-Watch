@@ -84,13 +84,11 @@
                             return new Date(a.date) - new Date(b.date);
                         });
 
-
-                        console.log(product.price_history)
-                        if (product.price_history.length >= 2 && product.price_history[1].price < product.price_history[0].price) {
-                            document.getElementById("previous-item-price").innerHTML = (Math.round(product.price_history[0].price * 100) / 100).toFixed(2) + " €";
+                        if (product.price_history.length >= 2 && product.price_history[product.price_history.length - 1].price < product.price_history[product.price_history.length - 2].price) {
+                            document.getElementById("previous-item-price").innerHTML = (Math.round(product.price_history[product.price_history.length - 2].price * 100) / 100).toFixed(2) + " €";
                         }
 
-                        document.getElementById("item-price").innerHTML = (Math.round(product.price_history[1].price * 100) / 100).toFixed(2) + " €";
+                        document.getElementById("item-price").innerHTML = (Math.round(product.price_history[product.price_history.length - 1].price * 100) / 100).toFixed(2) + " €";
                         document.getElementById("item-description").innerHTML = product.description.replace(/\n\s*\n/g, "\n").replace(/\n/g, "<br><br>");
                         document.getElementById("buy-button").href = product.url;
                         document.getElementById("buy-button").target = "_blank";
