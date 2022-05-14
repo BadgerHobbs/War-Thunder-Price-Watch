@@ -1,6 +1,6 @@
-# War Thunder Store Scraper
+# War Thunder Price Watch
 
-This application is a simple scraper for the War Thunder Store, generating (and updating) a database of items, prices and ratings for everything on the store.
+This application is a simple scraper and webpage for the War Thunder Store, generating (and updating) a database of items, prices and ratings for everything on the store, with a front-end to view items on sale and their price history.
 
 ## Building & Running
 
