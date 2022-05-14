@@ -33,7 +33,7 @@
 
                 <!--- Item name -->
                 <div class="w-full h-1/2 relative px-4">
-                    <h2 id="item-name" class="text-white text-4xl font-bold mx-auto text-left"></h2>
+                    <h2 id="item-name" class="text-white text-4xl font-bold mx-auto text-left p-1"></h2>
                     <div class="inline-flex items-baseline">
                         <h2 id="previous-item-price" class="text-gray-400 text-xl font-light p-1 inline-block flex-end mx-auto text-left line-through"></h2>
                         <h2 id="item-price" class="text-[#d9c17f] text-3xl font-medium mx-auto text-left p-1"></h2>
@@ -51,7 +51,7 @@
 
             <!-- Buy button -->
             <a id="buy-button" class="block text-center w-full h-1/2 relative px-4 bg-gradient-to-t from-[#e38618] to-[#ffeb39] text-black font-bold py-2 px-4 rounded cursor-pointer transition duration-400 hover:scale-[0.98]">
-                Buy From store.gaijin.net
+                Buy from store.gaijin.net
             </a>
 
             <!-- Item description -->
@@ -90,7 +90,6 @@
                         }
 
                         document.getElementById("item-price").innerHTML = product.price_history[0].price + " €";
-                        // remove instances of more than one new line with a single new line
                         document.getElementById("item-description").innerHTML = product.description.replace(/\n\s*\n/g, "\n").replace(/\n/g, "<br><br>");
                         document.getElementById("buy-button").href = product.url;
                         document.getElementById("buy-button").target = "_blank";
