@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Warthunder Store Price Watch</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <style>
+
+    </style>
+</head>
+
+<body class="bg-[#27323F]">
+
+    <div class="block py-8">
+
+        <div class="mx-auto w-1/2">
+
+            <div class="inline-flex w-full">
+                <!-- Item image -->
+                <img id="item-image" class="w-32 h-24 object-cover rounded" src="/static/media/demo-image.jpg"></img>
+
+                <!--- Item name -->
+                <div class="w-full h-1/2 relative px-4">
+                    <h2 id="item-name" class="text-white text-4xl font-bold mx-auto text-left"></h2>
+                    <div class="inline-flex items-baseline">
+                        <h2 id="previous-item-price" class="text-gray-400 text-xl font-light p-1 inline-block flex-end mx-auto text-left line-through"></h2>
+                        <h2 id="item-price" class="text-[#d9c17f] text-3xl font-medium mx-auto text-left p-1"></h2>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Chart -->
+            <div class="mx-auto w-full my-4 p-4 bg-[#2D3A48] rounded border border-gray-600">
+                <canvas id="chart"></canvas>
+            </div>
+
+            <!-- Buy button -->
+            <a id="buy-button" class="block text-center w-full h-1/2 relative px-4 bg-gradient-to-t from-[#e38618] to-[#ffeb39] text-black font-bold py-2 px-4 rounded cursor-pointer transition duration-400 hover:scale-[0.98]">
+                Buy From store.gaijin.net
+            </a>
+
+            <!-- Item description -->
+            <div class="mx-auto w-full my-4 p-4 bg-[#2D3A48] rounded border border-gray-600">
+                <h2 class="text-white text-2xl font-bold mx-auto text-left">Description</h2>
+                <p id="item-description" class="text-white text-sm font-normal mx-auto text-left"></p>
+            </div>
+
+            <script>
+                async function GetProduct(id) {
+                    var response = await fetch("/api/store-item?id=" + id);
+                    var product = await response.json();
+                    return product;
+                }
+
+                function GetIDFromUrl() {
+                    var url = window.location.href;
+                    var id = url.split("?id=")[1];
+                    return id;
+                }
+
+                function LoadProduct() {
+                    var id = GetIDFromUrl();
+                    GetProduct(id).then(function(product) {
+
+                        document.getElementById("item-name").innerHTML = product.name;
+
+                        // Sort prices by date
+                        product.price_history.sort(function(a, b) {
+                            return new Date(a.date) - new Date(b.date);
+                        });
+
+                        console.log(product.price_history)
+                        if (product.price_history.length >= 2 && product.price_history[1].price < product.price_history[0].price) {
+                            document.getElementById("previous-item-price").innerHTML = product.price_history[1].price + " €";
+                        }
+
+                        document.getElementById("item-price").innerHTML = product.price_history[0].price + " €";
+                        // remove instances of more than one new line with a single new line
+                        document.getElementById("item-description").innerHTML = product.description.replace(/\n\s*\n/g, "\n").replace(/\n/g, "<br><br>");
+                        document.getElementById("buy-button").href = product.url;
+                        document.getElementById("buy-button").target = "_blank";
+                        //document.getElementById("item-image").src = product.image;
+
+                        let chartData = [];
+
+                        for (let priceHistory of product.price_history) {
+                            chartData.push({
+                                x: priceHistory.timestamp,
+                                y: priceHistory.price
+                            });
+                        }
+
+                        // add a price with the current price at today's date
+                        chartData.push({
+                            x: new Date().toISOString().slice(0, -5),
+                            y: product.price_history[product.price_history.length - 1].price
+                        });
+
+
+                        let config = {
+                            type: 'line',
+                            data: {
+                                labels: [],
+                                datasets: [{
+                                    label: 'Price (EUR)',
+                                    backgroundColor: 'rgba(217, 193, 127, 0.5)',
+                                    borderColor: '#d9c17f',
+                                    data: chartData,
+                                    fill: true,
+                                }]
+                            },
+                            options: {
+                                plugins: {
+                                    title: {
+                                        display: false,
+                                    },
+                                    legend: {
+                                        display: false,
+                                    },
+                                },
+                                scales: {
+                                    x: {
+                                        type: 'time',
+                                        time: {
+                                            // Luxon format string
+                                            tooltipFormat: 'DD T'
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Date',
+                                            color: '#FFFFFF'
+                                        },
+                                        grace: '10%',
+                                        grid: {
+                                            color: '#4B5563',
+                                        },
+                                        ticks: {
+                                            color: '#FFFFFF'
+                                        },
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Price (EUR)',
+                                            color: '#FFFFFF'
+                                        },
+                                        grace: '10%',
+                                        grid: {
+                                            color: '#4B5563',
+                                        },
+                                        ticks: {
+                                            color: '#FFFFFF'
+                                        },
+                                    }
+                                },
+                            },
+                        };
+
+                        let myChart = new Chart(
+                            document.getElementById('chart'),
+                            config
+                        );
+
+                    });
+                }
+
+                LoadProduct();
+            </script>
+</body>
+
+</html>

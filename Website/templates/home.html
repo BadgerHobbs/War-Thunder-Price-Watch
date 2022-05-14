@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Warthunder Store Price Watch</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+
+    <style>
+
+    </style>
+</head>
+
+<body class="bg-[#27323F]">
+
+    <div class="block py-8">
+        <!-- Search box -->
+        <input class="hidden block w-2/5 mx-auto bg-gray-600 text-white border-2 border-gray-300 rounded-lg px-4 py-2 text-xl focus:caret-gray-200 focus:outline-gray-200 my-8" type="text" placeholder="Search for a product...">
+
+        <!-- Products currently on sale -->
+        <div class="mx-auto w-4/6 my-8 ">
+            <h2 class="text-white text-2xl font-bold mx-auto text-center my-4">Products Currently On Sale</h2>
+            <div id="products-on-sale" class="flex flex-wrap justify-center items-center fit-content">
+            </div>
+        </div>
+
+        <!-- All products -->
+        <div class="mx-auto w-4/6 my-8 ">
+            <h2 class="text-white text-2xl font-bold mx-auto text-center my-4">All Products</h2>
+            <div id="all-products" class="flex flex-wrap justify-center items-center fit-content">
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function CreateProductDiv(id, name, priceHistory, url) {
+            var productDiv = document.createElement("div");
+            productDiv.className = "w-52 h-64 m-2 bg-[#2D3A48] rounded border border-gray-600 flex flex-col items-stretch relative transition duration-400 hover:scale-105 cursor-pointer overflow-hidden";
+
+            var productImageContainer = document.createElement("div");
+            productImageContainer.className = "flex w-full h-1/2 relative";
+            productDiv.appendChild(productImageContainer);
+
+            var productImage = document.createElement("img");
+            productImage.src = "/static/media/demo-image.jpg";
+            productImage.className = "absolute top-0 left-0 w-full h-full object-cover";
+            productImageContainer.appendChild(productImage);
+
+            var productImageFade = document.createElement("div");
+            productImageFade.className = "absolute top-0 left-0 w-full h-full bg-gradient-to-t from-[#2D3A48]";
+            productImageContainer.appendChild(productImageFade);
+
+            if (priceHistory.length >= 2 && priceHistory[0].price < priceHistory[1].price) {
+                var productSalePercentage = document.createElement("div");
+                productSalePercentage.className = "absolute top-0 left-0 w-full bg-gradient-to-t from-[#e38618] to-[#ffeb39] font-bold text-right px-1 opacity-80";
+                productSalePercentage.innerHTML = Math.round((priceHistory[0].price - priceHistory[1].price) / priceHistory[1].price * 100, 2) + "%";
+                productImageContainer.appendChild(productSalePercentage);
+            }
+
+            var productName = document.createElement("div");
+            productName.className = "w-full text-left text-white text-sm font-medium p-2";
+            productName.innerHTML = name;
+            productDiv.appendChild(productName);
+
+            var pricesAndButtons = document.createElement("div");
+            pricesAndButtons.className = "w-full absolute left-0 bottom-0 ";
+            productDiv.appendChild(pricesAndButtons);
+
+            var productPrices = document.createElement("div");
+            productPrices.className = "inline-flex float-right items-baseline mx-2";
+
+            // If two or more prices are avaible, cross out the 2nd one and display the first one
+            if (priceHistory.length >= 2 && priceHistory[0].price < priceHistory[1].price) {
+                var priceCrossed = document.createElement("div");
+                priceCrossed.className = "text-gray-400 text-sm font-light p-1 inline-block flex-end";
+                priceCrossed.innerHTML = (Math.round(priceHistory[1].price * 100) / 100).toFixed(2) + " €";
+                priceCrossed.style.textDecoration = "line-through";
+                productPrices.appendChild(priceCrossed);
+
+                var price = document.createElement("div");
+                price.className = "text-[#d9c17f] text-lg font-medium p-1";
+                price.innerHTML = (Math.round(priceHistory[0].price * 100) / 100).toFixed(2) + " €";
+                productPrices.appendChild(price);
+            } else {
+                var price = document.createElement("div");
+                price.className = "text-white text-lg font-medium p-1";
+                price.innerHTML = (Math.round(priceHistory[0].price * 100) / 100).toFixed(2) + " €";
+                productPrices.appendChild(price);
+            }
+
+            pricesAndButtons.appendChild(productPrices);
+
+            // bottom button holder
+            var productButtonHolder = document.createElement("div");
+            productButtonHolder.className = "w-full inline-flex border-t border-gray-600";
+            pricesAndButtons.appendChild(productButtonHolder);
+
+            // Buy text button
+            var productBuyButton = document.createElement("a");
+            productBuyButton.className = "w-1/2 h-full py-2 text-[#d9c17f] text-sm font-medium border-r border-gray-600 text-center hover:text-white hover:font-bold";
+            productBuyButton.innerHTML = "Buy";
+            productBuyButton.href = url;
+            productBuyButton.target = "_blank";
+            productButtonHolder.appendChild(productBuyButton);
+
+            // Price history button
+            var productPriceHistoryButton = document.createElement("a");
+            productPriceHistoryButton.className = "w-1/2 h-full py-2 text-[#d9c17f] text-sm font-medium text-center hover:text-white hover:font-bold";
+            productPriceHistoryButton.innerHTML = "Price History";
+            productPriceHistoryButton.href = "/product?id=" + id;
+            productPriceHistoryButton.target = "_blank";
+            productButtonHolder.appendChild(productPriceHistoryButton);
+
+
+            return productDiv;
+        }
+
+        async function GetProducts() {
+
+            var response = await fetch("/api/store-items");
+            productsJson = await response.json();
+
+            // Sort products by name
+            productsJson.sort(function(a, b) {
+                var nameA = a.name.toUpperCase(); // ignore upper and lowercase
+                var nameB = b.name.toUpperCase(); // ignore upper and lowercase
+                if (nameA < nameB) {
+                    return -1;
+                }
+                if (nameA > nameB) {
+                    return 1;
+                }
+
+                // names must be equal
+                return 0;
+            });
+
+            return productsJson;
+        }
+
+        function GetProductsOnSale() {
+            GetProducts().then(function(products) {
+                let productsDiv = document.getElementById("products-on-sale");
+
+                // Go through each product
+                for (var i = 0; i < products.length; i++) {
+                    // Get the product
+                    var product = products[i];
+
+                    product.price_history.sort(function(a, b) {
+                        return new Date(b.date) - new Date(a.date);
+                    });
+
+                    // If there is two prices, get the latest one by sorting the prices by date
+                    if (product.price_history.length >= 2 && product.price_history[0].price < product.price_history[1].price) {
+
+                        // Add the product to the products div
+                        productsDiv.appendChild(CreateProductDiv(product.id, product.name, product.price_history, product.url));
+                    }
+                }
+            });
+        }
+
+        function GetAllProducts() {
+            GetProducts().then(function(products) {
+                let productsDiv = document.getElementById("all-products");
+
+                // Go through each product
+                for (var i = 0; i < products.length; i++) {
+                    // Get the product
+                    var product = products[i];
+
+                    // Add the product to the products div
+                    productsDiv.appendChild(CreateProductDiv(product.id, product.name, product.price_history, product.url));
+                }
+            });
+        }
+
+        GetProductsOnSale();
+        GetAllProducts();
+    </script>
+</body>
+
+</html>
