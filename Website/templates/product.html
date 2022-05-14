@@ -84,12 +84,13 @@
                             return new Date(a.date) - new Date(b.date);
                         });
 
+
                         console.log(product.price_history)
                         if (product.price_history.length >= 2 && product.price_history[1].price < product.price_history[0].price) {
-                            document.getElementById("previous-item-price").innerHTML = product.price_history[1].price + " €";
+                            document.getElementById("previous-item-price").innerHTML = product.price_history[0].price + " €";
                         }
 
-                        document.getElementById("item-price").innerHTML = product.price_history[0].price + " €";
+                        document.getElementById("item-price").innerHTML = product.price_history[1].price + " €";
                         document.getElementById("item-description").innerHTML = product.description.replace(/\n\s*\n/g, "\n").replace(/\n/g, "<br><br>");
                         document.getElementById("buy-button").href = product.url;
                         document.getElementById("buy-button").target = "_blank";
